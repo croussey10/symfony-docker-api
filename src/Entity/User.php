@@ -2,13 +2,28 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
+use App\Dto\User\UserDetailOutput;
+use App\Dto\User\UserRegisterInput;
 use App\Entity\Impl\AbstractEntity;
 use App\Repository\UserRepository;
+use App\State\User\UserRegisterProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Uid\Uuid;
 
+#[ApiResource(
+    operations: [
+        new Post(
+            uriTemplate: '/auth/register',
+            input: UserRegisterInput::class,
+            output: UserDetailOutput::class,
+            processor: UserRegisterProcessor::class
+        )
+    ]
+)]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -68,7 +83,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     /**
@@ -113,9 +128,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
      */
     public function __serialize(): array
     {
-        $data = (array) $this;
+        $data = (array)$this;
         $data["\0" . self::class . "\0password"] = hash('crc32c', $this->password);
-        
+
         return $data;
     }
 

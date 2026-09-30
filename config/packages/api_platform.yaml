@@ -14,3 +14,4 @@ api_platform:
         html: ['text/html']
     error_formats:
         jsonproblem: ['application/problem+json']
+
