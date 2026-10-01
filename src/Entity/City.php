@@ -11,6 +11,7 @@ use App\Repository\CityRepository;
 use App\State\City\CityCollectionProvider;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 
 #[ApiResource(
     operations: [
@@ -18,6 +19,7 @@ use Symfony\Component\Uid\Uuid;
         new GetCollection(
             uriTemplate: '/cities',
             provider: CityCollectionProvider::class,
+            openapi: new OpenApiOperation(security: []),
             output: CityListOutput::class,
             paginationEnabled: false,
             parameters: [
