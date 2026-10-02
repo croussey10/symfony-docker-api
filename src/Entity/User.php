@@ -22,16 +22,16 @@ use Symfony\Component\Uid\Uuid;
     operations: [
         new Post(
             uriTemplate: '/auth/register',
+            openapi: new OpenApiOperation(security: []),
             input: UserRegisterInput::class,
             output: UserDetailOutput::class,
             processor: UserRegisterProcessor::class,
-            openapi: new OpenApiOperation(security: []),
         ),
         new Get(
             uriTemplate: '/users/me',
-            provider: UserMeProvider::class,
+            security: "is_granted('ROLE_USER')",
             output: UserDetailOutput::class,
-            security: "is_granted('ROLE_USER')"
+            provider: UserMeProvider::class
         )
     ]
 )]

@@ -18,23 +18,23 @@ use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
         // GET /api/cities
         new GetCollection(
             uriTemplate: '/cities',
-            provider: CityCollectionProvider::class,
             openapi: new OpenApiOperation(security: []),
-            output: CityListOutput::class,
             paginationEnabled: false,
+            output: CityListOutput::class,
+            provider: CityCollectionProvider::class,
             parameters: [
                 'q' => new QueryParameter(
-                    description: 'Filtre textuel sur le nom de la ville. Insensible à la casse et aux accents.',
-                    schema: ['type' => 'string']
+                    schema: ['type' => 'string'],
+                    description: 'Filtre textuel sur le nom de la ville. Insensible à la casse et aux accents.'
                 ),
                 'limit' => new QueryParameter(
-                    description: 'Nombre maximum de villes retournées.',
                     schema: [
                         'type' => 'integer',
                         'minimum' => 1,
                         'maximum' => 100,
                         'default' => 20
-                    ]
+                    ],
+                    description: 'Nombre maximum de villes retournées.'
                 )
             ]
         )

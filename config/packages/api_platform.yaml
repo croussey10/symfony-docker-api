@@ -20,4 +20,6 @@ api_platform:
                 scheme: bearer
                 bearerFormat: JWT
         persist_authorization: true
-
+    exception_to_status:
+        App\Exception\User\EmailAlreadyUsedException: 409
+        App\Exception\City\CityNotFoundException: 422

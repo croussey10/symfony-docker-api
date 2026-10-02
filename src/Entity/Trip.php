@@ -2,15 +2,50 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use App\Dto\Trip\TripListOutput;
+use App\Dto\Trip\TripSearchInput;
 use App\Entity\Enum\CatapultModel;
 use App\Entity\Impl\AbstractEntity;
 use App\Repository\TripRepository;
+use App\State\Trip\TripItemProvider;
+use App\State\Trip\TripSearchProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
+use TripDetailsOutput;
 
 #[ORM\Entity(repositoryClass: TripRepository::class)]
+#[ApiResource(operations: [
+    new Post(
+        uriTemplate: '/trips/search',
+        status: 200,
+        openapi: new OpenApiOperation(
+            responses: ['200' => new OpenApiResponse(
+                description: 'Les lancers disponibles',
+                content: new \ArrayObject(['application/json' => ['schema' => [
+                    'type' => 'array',
+                    'items' => ['$ref' => '#/components/schemas/Trip.TripListOutput'],
+                ]]]),
+            )],
+            security: [],
+        ),
+        input: TripSearchInput::class,
+        output: TripListOutput::class,
+        processor: TripSearchProcessor::class,
+    ),
+    new Get(
+        uriTemplate: '/trips/{id}',
+        openapi: new OpenApiOperation(security: []),
+        output: TripDetailsOutput::class,
+        provider: TripItemProvider::class,
+    ),
+])]
 class Trip extends AbstractEntity
 {
     #[ORM\Id]

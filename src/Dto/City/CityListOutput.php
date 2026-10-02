@@ -7,7 +7,10 @@ use ApiPlatform\Metadata\ApiProperty;
 class CityListOutput
 {
     public function __construct(
-        #[ApiProperty(description: 'Identifiant unique de la ville ')]
+        #[ApiProperty(schema: [
+            'description' => 'Identifiant unique de la ville ',
+            'format' => 'uuid'
+        ])]
         public string $id,
         #[ApiProperty(description: 'Nom de la ville ')]
         public string $name,
