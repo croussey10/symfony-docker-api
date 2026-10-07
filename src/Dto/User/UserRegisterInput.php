@@ -5,7 +5,7 @@ namespace App\Dto\User;
 use ApiPlatform\Metadata\ApiProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class UserRegisterInput
+final class UserRegisterInput
 {
     public function __construct(
         #[Assert\NotBlank]
@@ -14,49 +14,45 @@ class UserRegisterInput
         #[ApiProperty(schema: [
             'type' => 'string',
             'format' => 'email',
-            'description' => 'email',
+            'description' => 'L\'email de l\'utilisateur (doit être unique)',
             'minLength' => 3,
             'maxLength' => 255,
             'example' => 'user@example.com',
         ], required: true)]
-        public string  $email,
+        public string $email,
 
         #[Assert\NotBlank]
         #[Assert\PasswordStrength]
-        #[Assert\Length(min: 3, max: 255)]
+        #[Assert\Length(min: 8, max: 255)]
         #[ApiProperty(schema: [
             'type' => 'string',
+            'description' => 'Le mot de passe de l\'utilisateur (doit être sécurisé)',
             'format' => 'password',
-            'description' => 'password',
             'minLength' => 8,
             'maxLength' => 255,
-            'example' => 'MotDePasse123.',
+            'example' => 'MonSuperMotDePasse',
         ], required: true)]
         public string $password,
 
-        #[Assert\Length(min: 3, max: 255)]
         #[Assert\NotBlank(allowNull: true)]
+        #[Assert\Length(min: 3, max: 255)]
         #[ApiProperty(schema: [
             'type' => 'string',
-            'description' => 'firstName',
+            'description' => 'Le prénom de l\'utilisateur',
             'minLength' => 3,
             'maxLength' => 255,
-            'example' => 'Jean',
         ])]
-        public ?string $firstName = null,
+        public null|string $firstName = null,
 
-        #[Assert\Length(min: 3, max: 255)]
         #[Assert\NotBlank(allowNull: true)]
+        #[Assert\Length(min: 3, max: 255)]
         #[ApiProperty(schema: [
             'type' => 'string',
-            'description' => 'lastName',
+            'description' => 'Le nom de l\'utilisateur',
             'minLength' => 3,
             'maxLength' => 255,
-            'example' => 'Pavois',
         ])]
-        public ?string $lastName = null,
-    )
-    {
-
+        public null|string $lastName = null,
+    ) {
     }
 }

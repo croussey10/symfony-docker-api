@@ -5,6 +5,9 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
+use App\Dto\Trip\TripDetailsOutput;
 use App\Dto\Trip\TripListOutput;
 use App\Dto\Trip\TripSearchInput;
 use App\Entity\Enum\CatapultModel;
@@ -16,34 +19,37 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
-use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
-use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
-use TripDetailsOutput;
 
 #[ORM\Entity(repositoryClass: TripRepository::class)]
 #[ApiResource(operations: [
     new Post(
         uriTemplate: '/trips/search',
+        // un Post répond 201 par défaut : cette recherche ne crée rien, le contrat n'y déclare qu'un 200
         status: 200,
+        input: TripSearchInput::class,
+        output: TripListOutput::class,
+        processor: TripSearchProcessor::class,
+        // on cherche un lancer sans être connecté : le contrat déclare l'opération publique
         openapi: new OpenApiOperation(
+            security: [],
+            // le générateur déduit la réponse du `output:`, qui nomme une classe et non un tableau :
+            // il annonce un objet unique là où l'API rend une liste. On corrige la documentation.
             responses: ['200' => new OpenApiResponse(
                 description: 'Les lancers disponibles',
                 content: new \ArrayObject(['application/json' => ['schema' => [
                     'type' => 'array',
+                    // le nom généré du schéma, composé du shortName de la ressource et de la classe de sortie
                     'items' => ['$ref' => '#/components/schemas/Trip.TripListOutput'],
                 ]]]),
             )],
-            security: [],
         ),
-        input: TripSearchInput::class,
-        output: TripListOutput::class,
-        processor: TripSearchProcessor::class,
     ),
     new Get(
         uriTemplate: '/trips/{id}',
-        openapi: new OpenApiOperation(security: []),
         output: TripDetailsOutput::class,
         provider: TripItemProvider::class,
+        // on consulte un lancer sans être connecté : le contrat déclare l'opération publique
+        openapi: new OpenApiOperation(security: []),
     ),
 ])]
 class Trip extends AbstractEntity

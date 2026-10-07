@@ -10,15 +10,38 @@ use Symfony\Component\Uid\Uuid;
 
 class CityService
 {
-    private const MAX_RESULTS = 100;
     public const DEFAULT_LIMIT = 20;
+    public const MAX_LIMIT = 100;
+
+    // le repository n'est pas construit ici, il est demandé au conteneur
     public function __construct(
         private readonly CityRepository $cityRepository,
-    )
-    {
-
+    ) {
     }
 
+    /**
+     * Searches cities by name, with a safe upper bound on the result count.
+     *
+     * A blank filter is treated as no filter at all.
+     *
+     * @return City[]
+     */
+    public function search(?string $q, ?int $limit): array
+    {
+        $pattern = null === $q ? null : trim($q);
+        if ('' === $pattern) {
+            $pattern = null;
+        }
+
+        // programmation défensive : un service de domaine ne présume pas que son appelant a validé
+        $boundedLimit = min(self::MAX_LIMIT, max(1, $limit ?? self::DEFAULT_LIMIT));
+
+        return $this->cityRepository->search($pattern, $boundedLimit);
+    }
+
+    /**
+     * Maps a city onto the payload served by the collection endpoint.
+     */
     public function toList(City $city): CityListOutput
     {
         return new CityListOutput(
@@ -27,35 +50,20 @@ class CityService
         );
     }
 
-    public function search(?string $query = null, int $limit = 20): array
-    {
-        $query = trim($query);
-
-        if ($query == '') {
-            $query = null;
-        }
-
-        if(trim($query) === '') {
-            $query = null;
-        }
-
-        // Clamp $limit to [1, MAX_RESULTS]
-        $limit = min(self::MAX_RESULTS, max(1, $limit ?? self::DEFAULT_LIMIT));
-
-        return $this->cityRepository->search($query, $limit);
-    }
-
     /**
+     * Returns the city carrying this identifier.
+     *
      * @throws CityNotFoundException when no city carries this identifier
      */
     public function findOneById(Uuid $id): City
     {
-        $found = $this->cityRepository->find($id);
+        // find() est héritée de Doctrine : rien à écrire dans le repository pour un accès par clé
+        $city = $this->cityRepository->find($id);
 
-        if (!$found) {
+        if (null === $city) {
             throw new CityNotFoundException();
         }
 
-        return $found;
+        return $city;
     }
 }

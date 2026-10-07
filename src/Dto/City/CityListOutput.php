@@ -3,19 +3,23 @@
 namespace App\Dto\City;
 
 use ApiPlatform\Metadata\ApiProperty;
+use Symfony\Component\Uid\Uuid;
 
-class CityListOutput
+final class CityListOutput
 {
     public function __construct(
         #[ApiProperty(schema: [
-            'description' => 'Identifiant unique de la ville ',
-            'format' => 'uuid'
+            'type' => 'string',
+            'format' => 'uuid',
+            'description' => 'Identifiant unique de la ville.',
         ])]
-        public string $id,
-        #[ApiProperty(description: 'Nom de la ville ')]
-        public string $name,
-    )
-    {
+        public readonly Uuid $id,
 
+        #[ApiProperty(schema: [
+            'type' => 'string',
+            'description' => 'Nom de la ville.',
+        ])]
+        public readonly string $name,
+    ) {
     }
 }

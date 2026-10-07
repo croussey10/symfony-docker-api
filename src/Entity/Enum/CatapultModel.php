@@ -2,14 +2,15 @@
 
 namespace App\Entity\Enum;
 
-use ApiPlatform\Metadata\ApiProperty;
-
 enum CatapultModel: string
 {
     case OnagreM3 = 'Onagre M3';
     case BalisteXR = 'Baliste XR';
     case Mangonneau700 = 'Mangonneau 700';
 
+    /**
+     * Returns the baggage allowance granted by the catapult model, in kilograms.
+     */
     public function maxBaggageWeightKg(): int
     {
         return match ($this) {
@@ -19,5 +20,3 @@ enum CatapultModel: string
         };
     }
 }
-
-

@@ -17,10 +17,14 @@ class TripRepository extends ServiceEntityRepository
         parent::__construct($registry, Trip::class);
     }
 
-    /** @return Trip[] */
+    /**
+     * Returns the trips flying the given route on the given day, ordered by departure time.
+     *
+     * @return Trip[]
+     */
     public function search(City $origin, City $destination, \DateTimeImmutable $day): array
     {
-
+        // égalité de date impossible : departureAt porte une heure, on borne donc sur l'intervalle du jour
         $start = $day->setTime(0, 0);
         $end = $start->modify('+1 day');
 
@@ -37,5 +41,4 @@ class TripRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
 }

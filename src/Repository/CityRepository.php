@@ -3,7 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\City;
-use App\Trait\EntityRepositoryServerTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -12,22 +11,25 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CityRepository extends ServiceEntityRepository
 {
-    use EntityRepositoryServerTrait;
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, City::class);
     }
 
-    public function search(?string $query = null, ?int $limit = 20): array
+    /**
+     * Returns cities ordered by name, optionally filtered on a case-insensitive substring.
+     *
+     * @return City[]
+     */
+    public function search(?string $q, int $limit): array
     {
         $qb = $this->createQueryBuilder('c')
             ->orderBy('c.name', 'ASC')
             ->setMaxResults($limit);
 
-        if ($query) {
-            $qb->where('LOWER(c.name) LIKE LOWER(:query)')
-                ->setParameter('query', '%' . $query . '%');
+        if (null !== $q) {
+            $qb->andWhere('LOWER(c.name) LIKE LOWER(:pattern)')
+                ->setParameter('pattern', '%'.$q.'%');
         }
 
         return $qb->getQuery()->getResult();
